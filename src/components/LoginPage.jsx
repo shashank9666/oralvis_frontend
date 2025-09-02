@@ -1,30 +1,35 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import axios from 'axios';
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import API from "../api";
 
 const LoginPage = ({ setAuth }) => {
-  const [credentials, setCredentials] = useState({ email: '', password: '' });
-  const [error, setError] = useState('');
+  const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setCredentials({ ...credentials, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     try {
-      const response = await axios.post('oralvisbackend-production.up.railway.app/api/login', credentials);
-      const { token, role } = response.data;
-      localStorage.setItem('token', token);
-      setAuth({ token, role });
-      navigate(role === 'Technician' ? '/technician' : '/dentist');
-    } catch {
-      setError('Invalid credentials');
+      const { data } = await API.post("/api/login", credentials);
+      localStorage.setItem("token", data.token);
+      setAuth(null); // App.jsx will decode token
+      navigate("/");
+    } catch (err) {
+      setError(err.response?.data?.error || "Invalid credentials");
     }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded shadow">
-        <h2 className="text-center text-3xl font-extrabold text-gray-900">Sign in to your account</h2>
+        <h2 className="text-center text-3xl font-extrabold text-gray-900">
+          Sign in to your account
+        </h2>
 
         {error && <div className="text-red-600 text-center">{error}</div>}
 
@@ -35,7 +40,7 @@ const LoginPage = ({ setAuth }) => {
             placeholder="Email address"
             required
             value={credentials.email}
-            onChange={(e) => setCredentials({ ...credentials, email: e.target.value })}
+            onChange={handleChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
           />
           <input
@@ -44,7 +49,7 @@ const LoginPage = ({ setAuth }) => {
             placeholder="Password"
             required
             value={credentials.password}
-            onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+            onChange={handleChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
           />
           <button
@@ -57,14 +62,17 @@ const LoginPage = ({ setAuth }) => {
 
         <div className="text-center mt-4">
           <span className="text-gray-600 mr-1">Don't have an account?</span>
-          <Link to="/signup" className="text-indigo-600 hover:text-indigo-900 font-medium">
+          <Link
+            to="/signup"
+            className="text-indigo-600 hover:text-indigo-900 font-medium"
+          >
             Create an account
           </Link>
         </div>
 
         <div className="mt-6 text-sm text-gray-500">
-          Demo Credentials:  
-          <br />Technician: technician@oralvis.com / password123  
+          Demo Credentials:
+          <br />Technician: technician@oralvis.com / password123
           <br />Dentist: dentist@oralvis.com / password123
         </div>
       </div>

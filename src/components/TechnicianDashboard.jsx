@@ -1,18 +1,16 @@
-import { useState } from 'react';
-import axios from 'axios';
+import { useState } from "react";
+import API from "../api"; // <-- axios instance with baseURL + token
 
 const TechnicianDashboard = () => {
   const [formData, setFormData] = useState({
-    patientName: '',
-    patientId: '',
-    scanType: '',
-    region: '',
+    patientName: "",
+    patientId: "",
+    scanType: "",
+    region: "",
   });
-  const [imageFiles, setImageFiles] = useState([]); // supports multiple files
+  const [imageFiles, setImageFiles] = useState([]);
   const [uploading, setUploading] = useState(false);
-  const [message, setMessage] = useState('');
-
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'oralvisbackend-production.up.railway.app';
+  const [message, setMessage] = useState("");
 
   const handleFileChange = (e) => {
     setImageFiles(Array.from(e.target.files));
@@ -21,35 +19,32 @@ const TechnicianDashboard = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (imageFiles.length === 0) {
-      setMessage('Please select at least one image file.');
+      setMessage("Please select at least one image file.");
       return;
     }
     setUploading(true);
-    setMessage('');
+    setMessage("");
 
     try {
-      for (const imageFile of imageFiles) {
+      for (const file of imageFiles) {
         const formDataToSend = new FormData();
-        Object.keys(formData).forEach((key) => {
-          formDataToSend.append(key, formData[key]);
-        });
-        formDataToSend.append('image', imageFile);
+        Object.entries(formData).forEach(([key, value]) =>
+          formDataToSend.append(key, value)
+        );
+        formDataToSend.append("image", file);
 
-        const token = localStorage.getItem('token');
-        await axios.post(`${backendUrl}/api/upload`, formDataToSend, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          },
+        await API.post("/api/upload", formDataToSend, {
+          headers: { "Content-Type": "multipart/form-data" },
         });
       }
-      setMessage('All scans uploaded successfully!');
-      setFormData({ patientName: '', patientId: '', scanType: '', region: '' });
+
+      setMessage("All scans uploaded successfully!");
+      setFormData({ patientName: "", patientId: "", scanType: "", region: "" });
       setImageFiles([]);
-      e.target.reset(); // clear native file input
-    } catch {
-      setMessage('Upload failed. Please try again.');
-      console.error('Upload error');
+      e.target.reset(); // reset file input
+    } catch (err) {
+      console.error("Upload error:", err);
+      setMessage("Upload failed. Please try again.");
     } finally {
       setUploading(false);
     }
@@ -58,13 +53,17 @@ const TechnicianDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
       <div className="max-w-xl w-full bg-white shadow-lg rounded-lg p-8 space-y-8">
-        <h2 className="text-3xl font-extrabold text-gray-900 text-center">Upload Dental Scans</h2>
+        <h2 className="text-3xl font-extrabold text-gray-900 text-center">
+          Upload Dental Scans
+        </h2>
 
         {message && (
           <div
-            className={`p-4 rounded ${
-              message.includes('successfully') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-            } text-center`}
+            className={`p-4 rounded text-center ${
+              message.includes("successfully")
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
           >
             {message}
           </div>
@@ -73,36 +72,48 @@ const TechnicianDashboard = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Patient Name</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Patient Name
+              </label>
               <input
                 type="text"
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 value={formData.patientName}
-                onChange={(e) => setFormData({ ...formData, patientName: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, patientName: e.target.value })
+                }
                 placeholder="Enter patient name"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Patient ID</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Patient ID
+              </label>
               <input
                 type="text"
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 value={formData.patientId}
-                onChange={(e) => setFormData({ ...formData, patientId: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, patientId: e.target.value })
+                }
                 placeholder="Enter patient ID"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Scan Type</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Scan Type
+              </label>
               <select
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 value={formData.scanType}
-                onChange={(e) => setFormData({ ...formData, scanType: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, scanType: e.target.value })
+                }
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="">Select scan type</option>
                 <option value="X-Ray">X-Ray</option>
@@ -113,12 +124,16 @@ const TechnicianDashboard = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Region</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Region
+              </label>
               <select
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 value={formData.region}
-                onChange={(e) => setFormData({ ...formData, region: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, region: e.target.value })
+                }
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="">Select region</option>
                 <option value="Upper Jaw">Upper Jaw</option>
@@ -130,8 +145,8 @@ const TechnicianDashboard = () => {
             </div>
           </div>
 
+          {/* File input */}
           <div className="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
-            {/* Custom file input button */}
             <label
               htmlFor="file-upload"
               className="cursor-pointer inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -146,6 +161,7 @@ const TechnicianDashboard = () => {
               onChange={handleFileChange}
               className="hidden"
             />
+
             {/* Previews */}
             <div className="flex space-x-2 overflow-x-auto max-w-xs">
               {imageFiles.map((file, idx) => {
@@ -168,7 +184,7 @@ const TechnicianDashboard = () => {
             disabled={uploading}
             className="w-full py-2 px-6 rounded-md bg-indigo-600 text-white text-lg font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
           >
-            {uploading ? 'Uploading...' : 'Upload Scan'}
+            {uploading ? "Uploading..." : "Upload Scan"}
           </button>
         </form>
       </div>

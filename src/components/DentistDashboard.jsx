@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import API from "../api"; // <-- custom axios instance
 import jsPDF from "jspdf";
 
 const DentistDashboard = () => {
@@ -13,11 +13,8 @@ const DentistDashboard = () => {
 
   const fetchScans = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get("oralvisbackend-production.up.railway.app/api/scans", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setScans(response.data);
+      const { data } = await API.get("/api/scans");
+      setScans(data);
     } catch (error) {
       console.error("Failed to fetch scans:", error);
     } finally {
@@ -28,11 +25,7 @@ const DentistDashboard = () => {
   const handleDeleteScan = async (scanId) => {
     if (!window.confirm("Are you sure you want to delete this scan?")) return;
     try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`oralvisbackend-production.up.railway.app/api/scans/${scanId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      // Remove scan locally after successful delete
+      await API.delete(`/api/scans/${scanId}`);
       setScans((prev) => prev.filter((scan) => scan.id !== scanId));
     } catch (error) {
       alert("Failed to delete the scan.");
@@ -40,26 +33,22 @@ const DentistDashboard = () => {
     }
   };
 
-  const generatePDFReport = async (scan) => {
+  const generatePDFReport = (scan) => {
     const doc = new jsPDF();
 
-    // Add header
+    // Header
     doc.setFontSize(20);
     doc.text("OralVis Healthcare - Dental Scan Report", 20, 30);
 
-    // Add patient information
+    // Patient Info
     doc.setFontSize(12);
     doc.text(`Patient Name: ${scan.patientName}`, 20, 50);
     doc.text(`Patient ID: ${scan.patientId}`, 20, 60);
     doc.text(`Scan Type: ${scan.scanType}`, 20, 70);
     doc.text(`Region: ${scan.region}`, 20, 80);
-    doc.text(
-      `Upload Date: ${new Date(scan.uploadDate).toLocaleDateString()}`,
-      20,
-      90
-    );
+    doc.text(`Upload Date: ${new Date(scan.uploadDate).toLocaleDateString()}`, 20, 90);
 
-    // Add image if possible (simplified)
+    // Add Image
     try {
       const img = new Image();
       img.crossOrigin = "anonymous";
@@ -76,7 +65,7 @@ const DentistDashboard = () => {
       };
       img.src = scan.imageUrl;
     } catch (error) {
-      console.log(error);
+      console.error("PDF image error:", error);
       doc.text("Scan image: See original file", 20, 110);
       doc.save(`dental-scan-${scan.patientId}-${scan.id}.pdf`);
     }
@@ -102,10 +91,7 @@ const DentistDashboard = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {scans.map((scan) => (
-              <div
-                key={scan.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden"
-              >
+              <div key={scan.id} className="bg-white rounded-lg shadow-md overflow-hidden">
                 <img
                   src={scan.imageUrl}
                   alt={`Scan for ${scan.patientName}`}
@@ -114,9 +100,7 @@ const DentistDashboard = () => {
                 />
 
                 <div className="p-4">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {scan.patientName}
-                  </h3>
+                  <h3 className="text-lg font-semibold text-gray-900">{scan.patientName}</h3>
                   <p className="text-sm text-gray-600">ID: {scan.patientId}</p>
                   <p className="text-sm text-gray-600">
                     {scan.scanType} - {scan.region}
@@ -151,7 +135,7 @@ const DentistDashboard = () => {
           </div>
         )}
 
-        {/* Modal for full image view */}
+        {/* Modal for full image */}
         {selectedImage && (
           <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
             <div className="relative bg-white p-4 rounded shadow-lg max-w-3xl max-h-full">
@@ -159,7 +143,7 @@ const DentistDashboard = () => {
                 onClick={() => setSelectedImage(null)}
                 className="absolute top-0 right-0 text-black hover:text-gray-900 font-bold text-xl"
               >
-                &times; {/* X close icon */}
+                &times;
               </button>
               <img
                 src={selectedImage}
