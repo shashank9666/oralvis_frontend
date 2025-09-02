@@ -1,80 +1,64 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import API from "../api";
+import { useNavigate } from "react-router-dom";
+import api from "../api";
 
 const LoginPage = ({ setAuth }) => {
-  const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setCredentials({ ...credentials, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
     try {
-      const { data } = await API.post("/api/login", credentials);
-      localStorage.setItem("token", data.token);
-      setAuth(null); // App.jsx will decode token
-      navigate("/");
+      const res = await api.post("/api/login", { email, password });
+
+      localStorage.setItem("token", res.data.token);
+      setAuth({ role: res.data.role, id: res.data.id });
+
+      if (res.data.role === "Technician") {
+        navigate("/technician");
+      } else {
+        navigate("/dentist");
+      }
     } catch (err) {
-      setError(err.response?.data?.error || "Invalid credentials");
+      setError(err.response?.data?.error || "Login failed. Please try again.");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded shadow">
-        <h2 className="text-center text-3xl font-extrabold text-gray-900">
-          Sign in to your account
-        </h2>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
+        <h2 className="text-2xl font-bold mb-4 text-center">Login</h2>
 
-        {error && <div className="text-red-600 text-center">{error}</div>}
+        {error && <p className="text-red-500 text-center">{error}</p>}
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="email"
-            name="email"
-            placeholder="Email address"
+            placeholder="Email"
+            className="w-full px-3 py-2 border rounded"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
-            value={credentials.email}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
           />
           <input
             type="password"
-            name="password"
             placeholder="Password"
+            className="w-full px-3 py-2 border rounded"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
-            value={credentials.password}
-            onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
           />
           <button
             type="submit"
-            className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700"
           >
-            Sign In
+            Login
           </button>
         </form>
-
-        <div className="text-center mt-4">
-          <span className="text-gray-600 mr-1">Don't have an account?</span>
-          <Link
-            to="/signup"
-            className="text-indigo-600 hover:text-indigo-900 font-medium"
-          >
-            Create an account
-          </Link>
-        </div>
-
-        <div className="mt-6 text-sm text-gray-500">
-          Demo Credentials:
-          <br />Technician: technician@oralvis.com / password123
-          <br />Dentist: dentist@oralvis.com / password123
-        </div>
       </div>
     </div>
   );
