@@ -31,7 +31,9 @@ const TechnicianDashboard = ({ logout }) => {
     try {
       for (const file of imageFiles) {
         const data = new FormData();
-        Object.entries(formData).forEach(([key, value]) => data.append(key, value));
+        Object.entries(formData).forEach(([key, value]) =>
+          data.append(key, value)
+        );
         data.append("image", file);
         await API.post("/api/upload", data, {
           headers: { "Content-Type": "multipart/form-data" },
@@ -42,7 +44,10 @@ const TechnicianDashboard = ({ logout }) => {
       setImageFiles([]);
       e.target.reset();
     } catch (err) {
-      setMessage("Upload failed. Please try again.", err);
+      console.error("Upload error:", err);
+      setMessage(
+        err.response?.data?.error || "Upload failed. Please try again."
+      );
     } finally {
       setUploading(false);
     }
@@ -54,11 +59,15 @@ const TechnicianDashboard = ({ logout }) => {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Technician Dashboard</h1>
-            <p className="text-sm text-gray-600">Upload and manage patient scans</p>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Technician Dashboard
+            </h1>
+            <p className="text-sm text-gray-600">
+              Upload and manage patient scans
+            </p>
           </div>
-          <button 
-            onClick={logout} 
+          <button
+            onClick={logout}
             className="bg-blue-600 hover:bg-white hover:text-blue-600 duration-150 border-2 hover:border-blue-600 text-white px-4 py-2 rounded-md flex items-center"
           >
             <i className="fas fa-sign-out-alt mr-2"></i> Logout
@@ -73,7 +82,7 @@ const TechnicianDashboard = ({ logout }) => {
             <i className="fas fa-upload mr-2 text-blue-600"></i>
             Upload New Scan
           </h2>
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -189,9 +198,13 @@ const TechnicianDashboard = ({ logout }) => {
             </div>
 
             {message && (
-              <div className={`rounded-md p-4 ${message.includes("successfully") 
-                ? "bg-green-50 text-green-800 border border-green-200" 
-                : "bg-red-50 text-red-800 border border-red-200"}`}>
+              <div
+                className={`rounded-md p-4 ${
+                  message.includes("successfully")
+                    ? "bg-green-50 text-green-800 border border-green-200"
+                    : "bg-red-50 text-red-800 border border-red-200"
+                }`}
+              >
                 <div className="flex">
                   <div className="flex-shrink-0">
                     {message.includes("successfully") ? (

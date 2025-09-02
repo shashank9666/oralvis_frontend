@@ -18,7 +18,8 @@ const DentistDashboard = ({ logout }) => {
       const { data } = await API.get("/api/scans");
       setScans(data);
     } catch (err) {
-      alert("Failed to fetch scans.", err);
+      console.error("Fetch scans error:", err);
+      alert("Failed to fetch scans.");
     } finally {
       setLoading(false);
     }
@@ -35,8 +36,12 @@ const DentistDashboard = ({ logout }) => {
     doc.text(`Patient ID: ${scan.patientId}`, 20, 60);
     doc.text(`Scan Type: ${scan.scanType}`, 20, 70);
     doc.text(`Region: ${scan.region}`, 20, 80);
-    doc.text(`Upload Date: ${new Date(scan.uploadDate).toLocaleDateString()}`, 20, 90);
-    
+    doc.text(
+      `Upload Date: ${new Date(scan.uploadDate).toLocaleDateString()}`,
+      20,
+      90
+    );
+
     try {
       const img = new Image();
       img.crossOrigin = "anonymous";
@@ -67,10 +72,11 @@ const DentistDashboard = ({ logout }) => {
     }
   };
 
-  const filteredScans = scans.filter(scan => {
+  const filteredScans = scans.filter((scan) => {
     const matchesFilter = filter === "all" || scan.scanType === filter;
-    const matchesSearch = scan.patientName.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         scan.patientId.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch =
+      scan.patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      scan.patientId.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 
@@ -91,11 +97,15 @@ const DentistDashboard = ({ logout }) => {
       <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Dentist Dashboard</h1>
-            <p className="text-sm text-gray-600">Manage patient scans and reports</p>
+            <h1 className="text-2xl font-bold text-gray-900">
+              Dentist Dashboard
+            </h1>
+            <p className="text-sm text-gray-600">
+              Manage patient scans and reports
+            </p>
           </div>
-          <button 
-            onClick={logout} 
+          <button
+            onClick={logout}
             className="bg-blue-600 hover:bg-white hover:text-blue-600 border-2 duration-150 hover:border-2 hover:border-blue-600 text-white px-4 py-2 rounded-md flex items-center"
           >
             <i className="fas fa-sign-out-alt mr-2"></i> Logout
@@ -122,7 +132,7 @@ const DentistDashboard = ({ logout }) => {
               </div>
             </div>
             <div className="flex space-x-2">
-              <select 
+              <select
                 className="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
@@ -133,7 +143,7 @@ const DentistDashboard = ({ logout }) => {
                 <option value="Panoramic">Panoramic</option>
                 <option value="Intraoral">Intraoral</option>
               </select>
-              <button 
+              <button
                 onClick={fetchScans}
                 className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md flex items-center"
               >
@@ -148,18 +158,23 @@ const DentistDashboard = ({ logout }) => {
           <div className="bg-white rounded-lg shadow p-8 text-center">
             <i className="fas fa-folder-open text-4xl text-gray-300 mb-4"></i>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {scans.length === 0 ? "No scans uploaded yet." : "No scans match your search."}
+              {scans.length === 0
+                ? "No scans uploaded yet."
+                : "No scans match your search."}
             </h3>
             <p className="text-gray-500">
-              {scans.length === 0 
-                ? "Upload new scans to get started." 
+              {scans.length === 0
+                ? "Upload new scans to get started."
                 : "Try adjusting your search or filter criteria."}
             </p>
           </div>
         ) : (
           <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             {filteredScans.map((scan) => (
-              <div key={scan.id} className="bg-white rounded-lg shadow overflow-hidden transition-transform duration-200 hover:shadow-md">
+              <div
+                key={scan.id}
+                className="bg-white rounded-lg shadow overflow-hidden transition-transform duration-200 hover:shadow-md"
+              >
                 <div className="relative">
                   <img
                     src={scan.imageUrl}
@@ -171,23 +186,27 @@ const DentistDashboard = ({ logout }) => {
                     {scan.scanType}
                   </div>
                 </div>
-                
+
                 <div className="p-4">
                   <div className="flex justify-between items-start mb-2">
-                    <h2 className="text-lg font-semibold text-gray-900">{scan.patientName}</h2>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                      {scan.patientName}
+                    </h2>
                     <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
                       ID: {scan.patientId}
                     </span>
                   </div>
-                  
+
                   <div className="flex items-center text-sm text-gray-600 mb-1">
                     <i className="fas fa-tooth mr-2"></i>
                     <span>{scan.region}</span>
                   </div>
-                  
+
                   <div className="flex items-center text-sm text-gray-600 mb-4">
                     <i className="far fa-calendar-alt mr-2"></i>
-                    <span>{new Date(scan.uploadDate).toLocaleDateString()}</span>
+                    <span>
+                      {new Date(scan.uploadDate).toLocaleDateString()}
+                    </span>
                   </div>
 
                   <div className="flex space-x-2">
@@ -230,9 +249,9 @@ const DentistDashboard = ({ logout }) => {
             >
               <i className="fas fa-times"></i>
             </button>
-            <img 
-              src={selectedImage} 
-              alt="Scan full view" 
+            <img
+              src={selectedImage}
+              alt="Scan full view"
               className="max-w-full max-h-screen mx-auto"
             />
           </div>
