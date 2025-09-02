@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import jwtDecode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";  // ✅ FIXED
 
 // ✅ Corrected imports
 import LoginPage from "./components/LoginPage";
@@ -8,6 +8,7 @@ import SignupPage from "./components/SignupPage";
 import TechnicianDashboard from "./components/TechnicianDashboard";
 import DentistDashboard from "./components/DentistDashboard";
 import ErrorBoundary from "./components/ErrorBoundary";
+
 
 const App = () => {
   const [auth, setAuth] = useState(null);
