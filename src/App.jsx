@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import jwtDecode from "jwt-decode";
-import LoginPage from "./pages/LoginPage";
-import SignupPage from "./pages/SignupPage";
-import TechnicianDashboard from "./pages/TechnicianDashboard";
-import DentistDashboard from "./pages/DentistDashboard";
+
+// ✅ Corrected imports
+import LoginPage from "./components/LoginPage";
+import SignupPage from "./components/SignupPage";
+import TechnicianDashboard from "./components/TechnicianDashboard";
+import DentistDashboard from "./components/DentistDashboard";
 import ErrorBoundary from "./components/ErrorBoundary";
 
 const App = () => {
@@ -38,14 +40,21 @@ const App = () => {
     setAuth(null);
   };
 
-  if (loading) return <p className="text-center mt-8">Loading...</p>;
+  if (loading) {
+    return <p className="text-center mt-8">Loading...</p>;
+  }
 
   return (
     <Router>
       <Routes>
+        {/* Redirect root to dashboard or login */}
         <Route path="/" element={<Navigate to={auth ? `/${auth.role.toLowerCase()}` : "/login"} />} />
+
+        {/* Auth routes */}
         <Route path="/login" element={<LoginPage setAuth={setAuth} />} />
         <Route path="/signup" element={<SignupPage />} />
+
+        {/* Technician dashboard */}
         <Route
           path="/technician"
           element={
@@ -58,6 +67,8 @@ const App = () => {
             )
           }
         />
+
+        {/* Dentist dashboard */}
         <Route
           path="/dentist"
           element={
