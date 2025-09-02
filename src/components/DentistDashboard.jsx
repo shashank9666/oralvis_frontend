@@ -14,7 +14,7 @@ const DentistDashboard = () => {
   const fetchScans = async () => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get("http://localhost:5000/api/scans", {
+      const response = await axios.get("oralvisbackend-production.up.railway.app/api/scans", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setScans(response.data);
@@ -29,7 +29,7 @@ const DentistDashboard = () => {
     if (!window.confirm("Are you sure you want to delete this scan?")) return;
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/api/scans/${scanId}`, {
+      await axios.delete(`oralvisbackend-production.up.railway.app/api/scans/${scanId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       // Remove scan locally after successful delete

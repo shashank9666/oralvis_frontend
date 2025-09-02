@@ -12,7 +12,7 @@ const TechnicianDashboard = () => {
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
 
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:5000';
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'oralvisbackend-production.up.railway.app';
 
   const handleFileChange = (e) => {
     setImageFiles(Array.from(e.target.files));

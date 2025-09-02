@@ -11,7 +11,7 @@ const LoginPage = ({ setAuth }) => {
     e.preventDefault();
     setError('');
     try {
-      const response = await axios.post('http://localhost:5000/api/login', credentials);
+      const response = await axios.post('oralvisbackend-production.up.railway.app/api/login', credentials);
       const { token, role } = response.data;
       localStorage.setItem('token', token);
       setAuth({ token, role });
