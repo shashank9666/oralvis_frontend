@@ -52,7 +52,7 @@ const App = () => {
         />
         <Route
           path="/signup"
-          element={!auth ? <SignupPage /> : <Navigate to={`/${auth.role.toLowerCase()}`} />}
+          element={!auth ? <SignupPage setAuth={setAuth}/> : <Navigate to={`/${auth.role.toLowerCase()}`} />}
         />
         <Route
           path="/technician"
